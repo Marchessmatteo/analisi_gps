@@ -74,6 +74,10 @@ training = pd.read_csv("2026_04_07_Full Training.csv", sep=';', decimal=',', enc
 match = match[match['Player'] != 'Team Average'].reset_index(drop=True)
 training = training[training['Player'] != 'Team Average'].reset_index(drop=True)
 
+# Calcolo tempo sessione
+match['TEMPO SESSIONE'] = (match['DISTANZA'] / match['DISTANZA AL MINUTO']).round(1)
+training['TEMPO SESSIONE'] = (training['DISTANZA'] / training['DISTANZA AL MINUTO']).round(1)
+
 # ── SIDEBAR - FILTRI ─────────────────────────────────────
 st.sidebar.title("⚙️ Filtri")
 sessione = st.sidebar.radio("Sessione", ["Partita", "Allenamento"])
@@ -138,21 +142,23 @@ with st.expander("📐 Medie di riferimento della sessione"):
     medie.index = ['Distanza (m)', 'Accelerazioni intense', 
                    'Vel. Max (km/h)', 'Potenza metabolica (W/kg)', 'FC media (bpm)']
     st.dataframe(medie.rename('Media squadra'), use_container_width=True)
-# ── TABELLA DATI ─────────────────────────────────────────
+# Tabella dati
 st.subheader(f"📋 Dati — {sessione}")
+st.caption("⏱️ TEMPO SESSIONE include partita + intervallo + recupero")
 st.dataframe(df_filtrato, use_container_width=True)
 
 # ── GRAFICO DISTANZA ─────────────────────────────────────
-st.subheader(f"🏃 Distanza totale — {sessione}")
 fig = px.bar(
     df_filtrato,
     x='Player',
     y='DISTANZA',
     color='Player',
     text='DISTANZA',
+    hover_data=['TEMPO SESSIONE', 'DISTANZA AL MINUTO'],
     color_discrete_sequence=COLORI_NEON,
     template=TEMPLATE,
     title=f'Distanza per giocatore — {sessione}'
+
 )
 fig.update_traces(textposition='outside')
 fig.update_layout(showlegend=False)
@@ -171,6 +177,7 @@ fig2 = px.bar(
     y=metrica_scelta,
     color='Player',
     text=metrica_scelta,
+    hover_data=['TEMPO SESSIONE', 'DISTANZA AL MINUTO'],
     color_discrete_sequence=COLORI_NEON,
     template=TEMPLATE,
     title=f'{metrica_scelta} per giocatore — {sessione}'
@@ -202,6 +209,7 @@ fig3 = px.bar(
     y=metrica_confronto,
     color='Sessione',
     barmode='group',
+    hover_data=['TEMPO SESSIONE', 'DISTANZA AL MINUTO'],
     text=metrica_confronto,
     color_discrete_sequence=['#00ff88', '#ff3366'],
     template=TEMPLATE,
