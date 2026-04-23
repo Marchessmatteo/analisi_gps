@@ -74,6 +74,31 @@ training = pd.read_csv("2026_04_07_Full Training.csv", sep=';', decimal=',', enc
 match = match[match['Player'] != 'Team Average'].reset_index(drop=True)
 training = training[training['Player'] != 'Team Average'].reset_index(drop=True)
 
+# Anonimizzazione coerente tra partita e allenamento
+nomi_anonimi_match = {
+    "D'ORAZIO": "Giocatore A",
+    "GIANOTTI": "Giocatore B",
+    "JAMMEH": "Giocatore C",
+    "MAMARANG": "Giocatore D",
+    "PAOLONI": "Giocatore E",
+    "SAVELLONI": "Giocatore F"
+}
+
+nomi_anonimi_training = {
+    "ANCILLAI": "Giocatore G",
+    "D'ABBONDANZA": "Giocatore H",
+    "JAMMEH": "Giocatore C",    # stesso di partita
+    "MAMARANG": "Giocatore D",  # stesso di partita
+    "MANGA": "Giocatore I",
+    "PAOLONI": "Giocatore E"    # stesso di partita
+}
+
+match['Player'] = match['Player'].replace(nomi_anonimi_match)
+training['Player'] = training['Player'].replace(nomi_anonimi_training)
+
+# Aggiorna anche i 3 in comune nel confronto
+in_comune = ['Giocatore C', 'Giocatore D', 'Giocatore E']
+
 # Calcolo tempo sessione
 match['TEMPO SESSIONE'] = (match['DISTANZA'] / match['DISTANZA AL MINUTO']).round(1)
 training['TEMPO SESSIONE'] = (training['DISTANZA'] / training['DISTANZA AL MINUTO']).round(1)
@@ -190,7 +215,7 @@ st.plotly_chart(fig2, use_container_width=True)
 st.subheader("⚔️ Confronto Partita vs Allenamento")
 st.caption("Solo per i giocatori presenti in entrambe le sessioni: JAMMEH, MAMARANG, PAOLONI")
 
-in_comune = ['JAMMEH', 'MAMARANG', 'PAOLONI']
+in_comune = ['Giocatore C', 'Giocatore D', 'Giocatore E']
 match_comuni = match[match['Player'].isin(in_comune)].copy()
 training_comuni = training[training['Player'].isin(in_comune)].copy()
 match_comuni['Sessione'] = 'Partita'
